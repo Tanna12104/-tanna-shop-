@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS TOPUP STORE - ระบบเติมเกม 24 ชม.</title>
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+    * { font-family: 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #080c14; color: #f3f4f6; }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .active-ring {
+      border-color: #06b6d4 !important;
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
+    }
+  </style>
+</head>
+<body>
+
+<div class="max-w-md mx-auto p-4 flex flex-col gap-4 pb-12">
+
+  <!-- Header & Mode Switcher -->
+  <div class="glass-card rounded-2xl p-4 text-center border-b border-cyan-500/30 flex justify-between items-center">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-bolt text-lg text-white"></i>
+      </div>
+      <div class="text-left">
+        <h1 class="font-black text-base bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400">
+          NEXUS TOPUP
+        </h1>
+        <p class="text-[10px] text-gray-400">ร้านรับเติมเกมราคาถูก สั่งทางแชท</p>
+      </div>
+    </div>
+    
+    <!-- ปุ่มสลับโหมดลูกค้า / แอดมิน -->
+    <button onclick="toggleMode()" id="modeToggleBtn" class="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition">
+      <i class="fa-solid fa-user-shield mr-1"></i> โหมดแอดมิน
+    </button>
+  </div>
+
+  <!-- ==================== 1. CUSTOMER VIEW (โหมดลูกค้า) ==================== -->
+  <div id="customerView" class="flex flex-col gap-4">
+    
+    <!-- เลือกเกม -->
+    <div class="glass-card rounded-2xl p-4">
+      <label class="block text-xs font-bold text-cyan-400 mb-2">1. เลือกเกมที่ต้องการเติม</label>
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="selectGame('Free Fire')" id="btn-Free Fire" class="game-btn active-ring glass-card p-2.5 rounded-xl flex flex-col items-center gap-1 border border-gray-700">
+          <i class="fa-solid fa-fire-flame-curved text-xl text-orange-400"></i>
+          <span class="text-[11px] font-bold">Free Fire</span>
+        </button>
+        <button onclick="selectGame('ROV')" id="btn-ROV" class="game-btn glass-card p-2.5 rounded-xl flex flex-col items-center gap-1 border border-gray-700">
+          <i class="fa-solid fa-shield-halved text-xl text-blue-400"></i>
+          <span class="text-[11px] font-bold">ROV</span>
+        </button>
+        <button onclick="selectGame('Valorant')" id="btn-Valorant" class="game-btn glass-card p-2.5 rounded-xl flex flex-col items-center gap-1 border border-gray-700">
+          <i class="fa-solid fa-crosshair text-xl text-red-400"></i>
+          <span class="text-[11px] font-bold">Valorant</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ใส่ UID -->
+    <div class="glass-card rounded-2xl p-4">
+      <label class="block text-xs font-bold text-cyan-400 mb-2">2. ระบุ UID หรือ Player ID</label>
+      <input type="text" id="inputUid" placeholder="กรอก UID เช่น 1234884466" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+    </div>
+
+    <!-- เลือกแพ็กเกจ -->
+    <div class="glass-card rounded-2xl p-4">
+      <label class="block text-xs font-bold text-cyan-400 mb-2">3. เลือกแพ็กเกจเติมเงิน</label>
+      <div class="grid grid-cols-2 gap-2" id="pkgContainer"></div>
+    </div>
+
+    <!-- ปุ่มทักสั่งทางแชท -->
+    <div class="grid grid-cols-2 gap-2">
+      <button onclick="sendToChat('LINE')" class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-extrabold text-xs text-white shadow-lg active:scale-95 transition flex items-center justify-center gap-1.5">
+        <i class="fa-brands fa-line text-lg"></i> ทักสั่งทาง LINE
+      </button>
+      <button onclick="sendToChat('FB')" class="py-3 rounded-xl bg-blue-600 hover:bg-blue-500 font-extrabold text-xs text-white shadow-lg active:scale-95 transition flex items-center justify-center gap-1.5">
+        <i class="fa-brands fa-facebook-messenger text-lg"></i> ทักสั่งทาง FB
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ==================== 2. ADMIN DASHBOARD (โหมดเจ้าของร้าน) ==================== -->
+  <div id="adminView" class="hidden flex flex-col gap-4">
+    
+    <div class="glass-card rounded-2xl p-4 border border-cyan-500/30">
+      <h3 class="text-xs font-bold text-cyan-400 mb-3 flex items-center gap-1.5">
+        <i class="fa-solid fa-sliders"></i> แผงควบคุมแอดมิน (บันทึกและตรวจสอบ)
+      </h3>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] text-gray-400 mb-1">เลือกเกม</label>
+          <select id="adminGameSelect" onchange="updateAdminPackages()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+            <option value="Free Fire">Free Fire</option>
+            <option value="ROV">ROV</option>
+            <option value="Valorant">Valorant</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] text-gray-400 mb-1">UID ของลูกค้า (ที่ส่งมาจากแชท)</label>
+          <input type="text" id="adminUidInput" placeholder="วาง UID ลูกค้าตรงนี้" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-cyan-300 focus:outline-none font-bold">
+        </div>
+
+        <div>
+          <label class="block text-[11px] text-gray-400 mb-1">แพ็กเกจที่ลูกค้าซื้อ</label>
+          <select id="adminPkgSelect" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"></select>
+        </div>
+
+        <button onclick="executeAdminTopup()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-extrabold text-xs text-white shadow-lg active:scale-95 transition flex items-center justify-center gap-1.5 mt-2">
+          <i class="fa-solid fa-check-circle"></i> ยืนยันกดเติมเงินให้ลูกค้าแล้ว
+        </button>
+      </div>
+    </div>
+
+    <!-- ประวัติทำรายการ -->
+    <div class="glass-card rounded-2xl p-4">
+      <h3 class="text-xs font-bold text-gray-300 mb-2">ประวัติออเดอร์ล่าสุด</h3>
+      <div id="txHistory" class="space-y-2 text-[11px] text-gray-400">
+        <p class="text-center text-gray-500 py-2">ยังไม่มีรายการบันทึก</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // ** แก้ไขลิงก์ LINE / FB ของร้านคุณตรงนี้ **
+  const MY_LINE_URL = "https://line.me/ti/p/@yourlineid";
+  const MY_FB_URL = "https://m.me/yourfacebookpage";
+
+  let isAdminMode = false;
+  let currentGame = 'Free Fire';
+  let selectedPkg = { name: '70 เพชร', price: 30 };
+
+  const packagesData = {
+    'Free Fire': [
+      { name: '70 เพชร', price: 30 },
+      { name: '235 เพชร', price: 100 },
+      { name: '355 เพชร', price: 150 },
+      { name: '720 เพชร', price: 300 }
+    ],
+    'ROV': [
+      { name: '35 คูปอง', price: 30 },
+      { name: '120 คูปอง', price: 100 },
+      { name: '370 คูปอง', price: 300 }
+    ],
+    'Valorant': [
+      { name: '475 VP', price: 150 },
+      { name: '1000 VP', price: 300 }
+    ]
+  };
+
+  function toggleMode() {
+    isAdminMode = !isAdminMode;
+    const custView = document.getElementById('customerView');
+    const adminView = document.getElementById('adminView');
+    const btn = document.getElementById('modeToggleBtn');
+
+    if (isAdminMode) {
+      custView.classList.add('hidden');
+      adminView.classList.remove('hidden');
+      btn.innerHTML = '<i class="fa-solid fa-user mr-1"></i> โหมดลูกค้า';
+      btn.className = "px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition";
+      updateAdminPackages();
+    } else {
+      adminView.classList.add('hidden');
+      custView.classList.remove('hidden');
+      btn.innerHTML = '<i class="fa-solid fa-user-shield mr-1"></i> โหมดแอดมิน';
+      btn.className = "px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition";
+    }
+  }
+
+  function renderPackages(game) {
+    const container = document.getElementById('pkgContainer');
+    const items = packagesData[game] || packagesData['Free Fire'];
+    selectedPkg = items[0];
+
+    container.innerHTML = items.map((item, index) => `
+      <div onclick="selectPkg(this, '${item.name}', ${item.price})" class="pkg-card cursor-pointer glass-card rounded-xl p-3 border border-gray-700 flex flex-col justify-between ${index === 0 ? 'active-ring' : ''}">
+        <span class="text-xs font-bold text-gray-200">${item.name}</span>
+        <span class="text-xs font-extrabold text-cyan-400 text-right mt-2">฿${item.price}</span>
+      </div>
+    `).join('');
+  }
+
+  function selectGame(game) {
+    currentGame = game;
+    document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active-ring'));
+    document.getElementById(`btn-${game}`).classList.add('active-ring');
+    renderPackages(game);
+  }
+
+  function selectPkg(el, name, price) {
+    document.querySelectorAll('.pkg-card').forEach(card => card.classList.remove('active-ring'));
+    el.classList.add('active-ring');
+    selectedPkg = { name, price };
+  }
+
+  function sendToChat(platform) {
+    const uid = document.getElementById('inputUid').value.trim();
+    if (!uid) { alert('กรุณากรอก UID ก่อนกดสั่งซื้อครับ'); return; }
+
+    const targetUrl = platform === 'LINE' ? MY_LINE_URL : MY_FB_URL;
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+
+    alert(`ระบบจัดเตรียมข้อมูลเรียบร้อย!\nโปรดส่งข้อมูลนี้ให้แอดมินในแชทเพื่อโอนเงินสั่งซื้อ:\n------------------\nเกม: ${currentGame}\nUID: ${uid}\nแพ็กเกจ: ${selectedPkg.name} (฿${selectedPkg.price})`);
+    window.open(targetUrl, '_blank');
+  }
+
+  function updateAdminPackages() {
+    const game = document.getElementById('adminGameSelect').value;
+    const select = document.getElementById('adminPkgSelect');
+    const items = packagesData[game];
+    select.innerHTML = items.map(i => `<option value="${i.price}">${i.name} - ฿${i.price}</option>`).join('');
+  }
+
+  function executeAdminTopup() {
+    const game = document.getElementById('adminGameSelect').value;
+    const uid = document.getElementById('adminUidInput').value.trim();
+    const pkgSelect = document.getElementById('adminPkgSelect');
+    const pkgName = pkgSelect.options[pkgSelect.selectedIndex].text;
+
+    if (!uid) { alert('กรุณาใส่ UID ของลูกค้าก่อนครับ'); return; }
+
+    const historyBox = document.getElementById('txHistory');
+    if (historyBox.innerHTML.includes('ยังไม่มีรายการ')) historyBox.innerHTML = '';
+
+    const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    historyBox.innerHTML = `
+      <div class="p-2 bg-gray-900 rounded-xl border border-gray-800 flex justify-between items-center">
+        <div>
+          <b class="text-cyan-400 font-bold">${game}</b> | UID: <span class="text-gray-200">${uid}</span>
+          <div class="text-[10px] text-gray-500">${pkgName}</div>
+        </div>
+        <div class="text-right">
+          <span class="text-emerald-400 font-bold">เติมแล้ว</span>
+          <div class="text-[10px] text-gray-500">${now}</div>
+        </div>
+      </div>
+    ` + historyBox.innerHTML;
+
+    confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+    alert(`บันทึกออเดอร์สำเร็จ!\nรายการ: ${game} (${pkgName})\nUID: ${uid}`);
+    document.getElementById('adminUidInput').value = '';
+  }
+
+  renderPackages('Free Fire');
+</script>
+</body>
+</html>
